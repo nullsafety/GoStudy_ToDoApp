@@ -7,7 +7,7 @@ env-up:        ## Запустить окружение
 	@docker compose up -d todoapp-postgres
 
 env-down:      ## Остановить окружение
-	@docker compose down todoapp-postgres
+	@docker compose down todoapp-postgres port-forwarder
 
 env-cleanup:   ## Удалить данные окружения (volume)
 	@read -p "Очистить volume? Опасность утери данных. [y/N]: " ans; \
@@ -23,6 +23,7 @@ env-port-close:   ## Закрыть порт
 	@docker compose down port-forwarder
 
 migrate-create:   ## Создать новую версию схемы
+	@test -n "$(seq)" || (echo "seq обязателен: make migrate-create seq=name"; exit 1)
 	@docker compose run --rm todoapp-postgres-migrate \
 		create -ext sql -dir /migrations -seq "$(seq)"
 

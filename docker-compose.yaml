@@ -1,6 +1,12 @@
 services:
   todoapp-postgres:
     image: postgres:18.1-bookworm
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
     container_name: todoapp-env-postgres
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
@@ -13,6 +19,9 @@ services:
     image: migrate/migrate:v4.20.1
     volumes:
       - ${PROJECT_ROOT}/migrations:/migrations
+    depends_on:
+      todoapp-postgres:
+        condition: service_healthy
   port-forwarder:
     image: alpine/socat:1.8.0.3
     container_name: todoapp-env-port-forwarder
